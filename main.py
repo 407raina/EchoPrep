@@ -26,17 +26,13 @@ def main():
         st.error(f"Database initialization failed: {e}")
         return
     
-    # Enhanced CSS with fixed overlapping and positioning
+    # Enhanced CSS with fixed formatting and password toggle
     st.markdown("""
     <style>
     /* Import fonts */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
-    /* Reset and base styling */
-    * {
-        box-sizing: border-box !important;
-    }
-    
+    /* Base styling */
     .stApp {
         background-color: #F5EFE6 !important;
         min-height: 100vh !important;
@@ -44,9 +40,8 @@ def main():
     
     .main .block-container {
         background-color: #F5EFE6 !important;
-        padding: 2rem 1rem !important;
-        max-width: 1200px !important;
-        margin: 0 auto !important;
+        padding: 2rem 3rem !important;
+        max-width: none !important;
     }
     
     /* Hide Streamlit branding */
@@ -55,38 +50,23 @@ def main():
     header {visibility: hidden;}
     .stDeployButton {display: none;}
     
-    /* Remove all default margins and padding */
-    .element-container {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    .stMarkdown {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
     /* Typography */
     h1, h2, h3, h4, h5, h6 {
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
         color: #2c3e50 !important;
         font-weight: 600 !important;
-        margin: 0 !important;
-        padding: 0 !important;
     }
     
     p, div, span, label {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         color: #34495e !important;
-        margin: 0 !important;
-        padding: 0 !important;
     }
     
     /* Centered content container */
     .centered-content {
-        max-width: 800px !important;
+        max-width: 1000px !important;
         margin: 0 auto !important;
-        padding: 0 !important;
+        padding: 0 1.5rem !important;
     }
     
     /* Hero section styling */
@@ -94,17 +74,16 @@ def main():
         background-color: #CBDCEB !important;
         border: 2px solid #6D94C5 !important;
         border-radius: 16px !important;
-        padding: 2rem !important;
-        margin: 0 auto 2rem auto !important;
+        padding: 2.5rem 2rem !important;
+        margin: 1rem auto 2rem auto !important;
         text-align: center !important;
-        box-shadow: 0 4px 20px rgba(109, 148, 197, 0.2) !important;
-        width: 100% !important;
-        max-width: 700px !important;
+        max-width: 850px !important;
+        box-shadow: 0 6px 24px rgba(109, 148, 197, 0.2) !important;
     }
     
     .hero-title {
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-        font-size: 2.8rem !important;
+        font-size: 3rem !important;
         font-weight: 700 !important;
         color: #2c3e50 !important;
         margin-bottom: 1rem !important;
@@ -112,49 +91,50 @@ def main():
     
     .hero-subtitle {
         font-family: 'Inter', sans-serif !important;
-        font-size: 1.1rem !important;
+        font-size: 1.2rem !important;
         color: #34495e !important;
-        line-height: 1.5 !important;
-        margin: 0 !important;
+        line-height: 1.6 !important;
+        max-width: 650px !important;
+        margin: 0 auto !important;
     }
     
-    /* FIXED TAB SYSTEM - No overlapping */
-    .stTabs {
-        margin: 2rem auto 0 auto !important;
-        max-width: 500px !important;
-        width: 100% !important;
+    /* Authentication form styling */
+    .auth-title {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+        font-size: 1.8rem !important;
+        font-weight: 600 !important;
+        color: #2c3e50 !important;
+        text-align: center !important;
+        margin-bottom: 1.5rem !important;
     }
     
+    /* Tab styling - Fixed alignment */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 0 !important;
+        gap: 0.5rem !important;
         background-color: #E8DFCA !important;
-        padding: 0.5rem !important;
-        border-radius: 12px !important;
+        padding: 0.6rem !important;
+        border-radius: 15px !important;
         border: 2px solid #6D94C5 !important;
-        margin: 0 auto 0 auto !important;
+        margin: 0 auto 2rem auto !important;
+        max-width: 500px !important;
         display: flex !important;
         justify-content: center !important;
-        box-shadow: 0 2px 10px rgba(109, 148, 197, 0.15) !important;
-        width: 100% !important;
+        box-shadow: 0 4px 12px rgba(109, 148, 197, 0.2) !important;
     }
     
     .stTabs [data-baseweb="tab"] {
         background-color: transparent !important;
-        border-radius: 8px !important;
+        border-radius: 10px !important;
         color: #2c3e50 !important;
         font-weight: 600 !important;
-        padding: 0.75rem 1.5rem !important;
+        padding: 0.8rem 1.5rem !important;
         font-family: 'Inter', sans-serif !important;
         border: none !important;
-        transition: all 0.2s ease !important;
+        transition: all 0.3s ease !important;
         flex: 1 !important;
         text-align: center !important;
-        font-size: 0.95rem !important;
-        margin: 0 0.25rem !important;
-        min-height: 40px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        font-size: 1rem !important;
+        min-width: 150px !important;
     }
     
     .stTabs [data-baseweb="tab"]:hover {
@@ -165,85 +145,51 @@ def main():
     .stTabs [aria-selected="true"] {
         background-color: #6D94C5 !important;
         color: #ffffff !important;
-        box-shadow: 0 2px 8px rgba(109, 148, 197, 0.3) !important;
+        box-shadow: 0 3px 10px rgba(109, 148, 197, 0.5) !important;
         font-weight: 700 !important;
     }
     
-    /* FIXED TAB PANEL - No overlapping, proper spacing */
+    /* Tab content styling - Fixed container */
     .stTabs [data-baseweb="tab-panel"] {
-        padding: 0 !important;
-        margin: 1.5rem auto 0 auto !important;
-        background: transparent !important;
-        border: none !important;
-        width: 100% !important;
-        max-width: 500px !important;
-    }
-    
-    /* Form container - Fixed positioning */
-    .auth-form-container {
+        padding: 2.5rem 2rem !important;
         background-color: #ffffff !important;
         border: 2px solid #6D94C5 !important;
-        border-radius: 16px !important;
-        padding: 2rem !important;
+        border-radius: 20px !important;
         margin: 0 auto !important;
-        box-shadow: 0 8px 30px rgba(109, 148, 197, 0.2) !important;
-        width: 100% !important;
         max-width: 500px !important;
-        position: relative !important;
-        z-index: 1 !important;
+        box-shadow: 0 10px 40px rgba(109, 148, 197, 0.25) !important;
+        min-height: 400px !important;
     }
     
-    /* Form title */
-    .auth-title {
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-        font-size: 1.8rem !important;
-        font-weight: 600 !important;
-        color: #2c3e50 !important;
-        text-align: center !important;
-        margin-bottom: 2rem !important;
-        padding: 0 !important;
-    }
-    
-    /* FIXED INPUT STYLING - No overlapping */
+    /* Input field styling - Fixed visibility */
     .stTextInput {
         margin-bottom: 1.5rem !important;
-        position: relative !important;
-    }
-    
-    .stTextInput > div {
-        position: relative !important;
-        margin: 0 !important;
-        padding: 0 !important;
     }
     
     .stTextInput > div > div {
         position: relative !important;
-        margin: 0 !important;
-        padding: 0 !important;
     }
     
     .stTextInput > div > div > input {
         background-color: #ffffff !important;
         color: #2c3e50 !important;
         border: 2px solid #6D94C5 !important;
-        border-radius: 10px !important;
-        padding: 1rem 1rem !important;
-        padding-right: 3rem !important;
+        border-radius: 12px !important;
+        padding: 1rem 1.2rem !important;
+        padding-right: 3.5rem !important;
         font-size: 1rem !important;
         font-family: 'Inter', sans-serif !important;
         font-weight: 500 !important;
         width: 100% !important;
-        height: 50px !important;
+        height: 3.2rem !important;
         box-sizing: border-box !important;
-        transition: all 0.2s ease !important;
-        box-shadow: 0 2px 6px rgba(109, 148, 197, 0.1) !important;
-        position: relative !important;
-        z-index: 1 !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 2px 8px rgba(109, 148, 197, 0.15) !important;
     }
     
     .stTextInput > div > div > input:focus {
         border-color: #5a7ba8 !important;
-        box-shadow: 0 0 0 0.2rem rgba(109, 148, 197, 0.25) !important;
+        box-shadow: 0 0 0 0.3rem rgba(109, 148, 197, 0.25) !important;
         outline: none !important;
         background-color: #fafafa !important;
     }
@@ -254,7 +200,7 @@ def main():
         font-weight: 400 !important;
     }
     
-    /* Input labels */
+    /* Input labels - Enhanced */
     .stTextInput > label {
         font-family: 'Inter', sans-serif !important;
         color: #2c3e50 !important;
@@ -262,42 +208,38 @@ def main():
         font-size: 1rem !important;
         margin-bottom: 0.5rem !important;
         display: block !important;
-        padding: 0 !important;
     }
     
-    /* FIXED PASSWORD TOGGLE - Proper positioning */
-    div[data-testid="stTextInputRootElement"] {
-        position: relative !important;
-    }
-    
+    /* Password visibility toggle - FIXED LOGIC */
     div[data-testid="stTextInputRootElement"] button {
         position: absolute !important;
-        right: 0.75rem !important;
+        right: 1rem !important;
         top: 50% !important;
         transform: translateY(-50%) !important;
         background-color: #6D94C5 !important;
         border: none !important;
         color: #ffffff !important;
-        padding: 0.4rem !important;
+        padding: 0.5rem !important;
         cursor: pointer !important;
         z-index: 10 !important;
-        width: 2rem !important;
-        height: 2rem !important;
+        width: 2.5rem !important;
+        height: 2.5rem !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        border-radius: 6px !important;
+        border-radius: 8px !important;
         transition: all 0.2s ease !important;
-        box-shadow: 0 1px 4px rgba(109, 148, 197, 0.3) !important;
-        font-size: 0.8rem !important;
+        box-shadow: 0 2px 6px rgba(109, 148, 197, 0.3) !important;
+        font-size: 0.9rem !important;
     }
     
     div[data-testid="stTextInputRootElement"] button:hover {
         background-color: #5a7ba8 !important;
         transform: translateY(-50%) scale(1.05) !important;
+        box-shadow: 0 4px 12px rgba(109, 148, 197, 0.4) !important;
     }
     
-    /* Show/Hide password button states */
+    /* Show proper icons for password toggle */
     div[data-testid="stTextInputRootElement"] button[title*="Hide"] {
         background-color: #e74c3c !important;
     }
@@ -306,90 +248,67 @@ def main():
         background-color: #c0392b !important;
     }
     
-    /* FIXED BUTTON STYLING - No overlapping */
-    .stButton {
-        margin-top: 2rem !important;
-        margin-bottom: 0 !important;
-        width: 100% !important;
+    div[data-testid="stTextInputRootElement"] button[title*="Show"] {
+        background-color: #6D94C5 !important;
     }
     
+    div[data-testid="stTextInputRootElement"] button[title*="Show"]:hover {
+        background-color: #5a7ba8 !important;
+    }
+    
+    /* Button styling - Enhanced */
     .stButton > button {
         background: linear-gradient(135deg, #6D94C5 0%, #5a7ba8 100%) !important;
         color: #ffffff !important;
         border: none !important;
-        border-radius: 10px !important;
+        border-radius: 12px !important;
         padding: 1rem 2rem !important;
         font-weight: 700 !important;
-        font-size: 1rem !important;
+        font-size: 1.1rem !important;
         font-family: 'Inter', sans-serif !important;
         width: 100% !important;
-        height: 50px !important;
+        margin-top: 1.5rem !important;
         transition: all 0.3s ease !important;
-        box-shadow: 0 4px 12px rgba(109, 148, 197, 0.3) !important;
+        box-shadow: 0 4px 15px rgba(109, 148, 197, 0.4) !important;
+        height: 3.5rem !important;
         text-transform: uppercase !important;
         letter-spacing: 0.5px !important;
-        cursor: pointer !important;
     }
     
     .stButton > button:hover {
         background: linear-gradient(135deg, #5a7ba8 0%, #4a6690 100%) !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 6px 18px rgba(109, 148, 197, 0.4) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(109, 148, 197, 0.6) !important;
     }
     
-    /* Form submit button */
+    /* Form submit button - Enhanced */
     div[data-testid="stForm"] .stButton > button {
         background: linear-gradient(135deg, #6D94C5 0%, #5a7ba8 100%) !important;
         color: #ffffff !important;
         border: none !important;
-        border-radius: 10px !important;
+        border-radius: 12px !important;
         padding: 1rem 2rem !important;
         font-weight: 700 !important;
-        font-size: 1rem !important;
+        font-size: 1.1rem !important;
         font-family: 'Inter', sans-serif !important;
         width: 100% !important;
-        height: 50px !important;
         margin-top: 2rem !important;
         transition: all 0.3s ease !important;
-        box-shadow: 0 4px 12px rgba(109, 148, 197, 0.3) !important;
+        box-shadow: 0 4px 15px rgba(109, 148, 197, 0.4) !important;
+        height: 3.5rem !important;
         text-transform: uppercase !important;
         letter-spacing: 0.5px !important;
     }
     
     div[data-testid="stForm"] .stButton > button:hover {
         background: linear-gradient(135deg, #5a7ba8 0%, #4a6690 100%) !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 6px 18px rgba(109, 148, 197, 0.4) !important;
-    }
-    
-    /* Form containers - Remove default styling */
-    .stForm {
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    
-    div[data-testid="stForm"] {
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    
-    /* Success/Error messages */
-    .stSuccess, .stError, .stWarning, .stInfo {
-        font-family: 'Inter', sans-serif !important;
-        border-radius: 10px !important;
-        margin: 1rem auto !important;
-        max-width: 500px !important;
-        font-weight: 600 !important;
-        text-align: center !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(109, 148, 197, 0.6) !important;
     }
     
     /* Feature cards */
     .features-section {
-        margin: 4rem auto 2rem auto !important;
+        margin: 3rem auto 2rem auto !important;
         max-width: 900px !important;
     }
     
@@ -405,40 +324,40 @@ def main():
     .feature-card {
         background-color: #ffffff !important;
         border: 2px solid #6D94C5 !important;
-        border-radius: 12px !important;
-        padding: 1.8rem 1.5rem !important;
+        border-radius: 16px !important;
+        padding: 2rem 1.8rem !important;
         text-align: center !important;
         height: 100% !important;
         transition: all 0.3s ease !important;
-        box-shadow: 0 4px 16px rgba(109, 148, 197, 0.15) !important;
-        margin-bottom: 1rem !important;
+        margin: 0 0.5rem 1rem 0.5rem !important;
+        box-shadow: 0 5px 20px rgba(109, 148, 197, 0.15) !important;
     }
     
     .feature-card:hover {
-        transform: translateY(-3px) !important;
-        box-shadow: 0 8px 25px rgba(109, 148, 197, 0.25) !important;
+        transform: translateY(-5px) !important;
+        box-shadow: 0 12px 30px rgba(109, 148, 197, 0.3) !important;
         border-color: #5a7ba8 !important;
     }
     
     .feature-icon {
-        font-size: 2.5rem !important;
-        margin-bottom: 1rem !important;
+        font-size: 3rem !important;
+        margin-bottom: 1.2rem !important;
         display: block !important;
     }
     
     .feature-title {
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-        font-size: 1.2rem !important;
+        font-size: 1.3rem !important;
         font-weight: 700 !important;
         color: #2c3e50 !important;
-        margin-bottom: 0.8rem !important;
+        margin-bottom: 1rem !important;
     }
     
     .feature-description {
         font-family: 'Inter', sans-serif !important;
         color: #34495e !important;
-        line-height: 1.5 !important;
-        font-size: 0.95rem !important;
+        line-height: 1.6 !important;
+        font-size: 1rem !important;
         font-weight: 400 !important;
     }
     
@@ -446,27 +365,52 @@ def main():
     .dashboard-header {
         background-color: #CBDCEB !important;
         border: 2px solid #6D94C5 !important;
-        border-radius: 16px !important;
-        padding: 2rem !important;
-        margin: 0 auto 2rem auto !important;
+        border-radius: 20px !important;
+        padding: 2.5rem 2rem !important;
+        margin: 1rem auto 2.5rem auto !important;
         text-align: center !important;
-        max-width: 700px !important;
-        box-shadow: 0 6px 25px rgba(109, 148, 197, 0.2) !important;
+        max-width: 750px !important;
+        box-shadow: 0 8px 30px rgba(109, 148, 197, 0.3) !important;
     }
     
     .dashboard-title {
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-        font-size: 2.2rem !important;
+        font-size: 2.5rem !important;
         font-weight: 700 !important;
         color: #2c3e50 !important;
-        margin-bottom: 0.5rem !important;
+        margin-bottom: 0.8rem !important;
     }
     
     .dashboard-subtitle {
         font-family: 'Inter', sans-serif !important;
-        font-size: 1rem !important;
+        font-size: 1.1rem !important;
         color: #34495e !important;
         font-weight: 500 !important;
+    }
+    
+    /* Success/Error messages */
+    .stSuccess, .stError, .stWarning, .stInfo {
+        font-family: 'Inter', sans-serif !important;
+        border-radius: 12px !important;
+        margin: 1.5rem auto !important;
+        max-width: 500px !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+    }
+    
+    /* Form containers */
+    .stForm {
+        background-color: transparent !important;
+        padding: 0 !important;
+        border: none !important;
+        margin: 0 !important;
+    }
+    
+    div[data-testid="stForm"] {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
     
     /* Column spacing */
@@ -474,32 +418,65 @@ def main():
         padding: 0 0.5rem !important;
     }
     
+    /* Quick actions styling */
+    .quick-actions {
+        max-width: 800px !important;
+        margin: 0 auto 2rem auto !important;
+    }
+    
+    /* Interview container */
+    .interview-container {
+        max-width: 700px !important;
+        margin: 0 auto !important;
+    }
+    
+    .interview-card {
+        background-color: #ffffff !important;
+        border: 2px solid #E8DFCA !important;
+        border-radius: 12px !important;
+        padding: 1.5rem !important;
+        margin-bottom: 1rem !important;
+        box-shadow: 0 3px 12px rgba(109, 148, 197, 0.1) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .interview-card:hover {
+        border-color: #6D94C5 !important;
+        box-shadow: 0 6px 20px rgba(109, 148, 197, 0.2) !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    /* Section headers */
+    .section-header {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+        font-size: 1.8rem !important;
+        font-weight: 600 !important;
+        color: #2c3e50 !important;
+        margin: 2rem auto 1.5rem auto !important;
+        padding-bottom: 0.6rem !important;
+        border-bottom: 2px solid #E8DFCA !important;
+        text-align: center !important;
+        max-width: 600px !important;
+    }
+    
     /* Responsive design */
     @media (max-width: 768px) {
         .main .block-container {
-            padding: 1rem 0.5rem !important;
+            padding: 1rem !important;
         }
         
         .hero-section {
             max-width: 95% !important;
-            padding: 1.5rem !important;
-            margin: 0 auto 1.5rem auto !important;
+            padding: 2rem 1.5rem !important;
         }
         
         .hero-title {
             font-size: 2.2rem !important;
         }
         
-        .auth-form-container {
-            padding: 1.5rem !important;
-            max-width: 95% !important;
-        }
-        
-        .stTabs {
-            max-width: 95% !important;
-        }
-        
         .stTabs [data-baseweb="tab-panel"] {
+            padding: 2rem 1.5rem !important;
+            margin: 1rem auto !important;
             max-width: 95% !important;
         }
         
@@ -508,7 +485,7 @@ def main():
         }
         
         .dashboard-title {
-            font-size: 1.8rem !important;
+            font-size: 2rem !important;
         }
         
         .stTextInput > div > div > input {
@@ -528,7 +505,7 @@ def main():
         show_login_page()
 
 def show_login_page():
-    """Display the EchoPrep login page with fixed positioning"""
+    """Display the EchoPrep login page with proper formatting"""
     
     # Wrap content in centered container
     st.markdown('<div class="centered-content">', unsafe_allow_html=True)
@@ -545,13 +522,8 @@ def show_login_page():
     tab1, tab2 = st.tabs(["🔑 Sign In", "👤 Create Account"])
     
     with tab1:
-        st.markdown("""
-        <div class="auth-form-container">
-            <h2 class="auth-title">Welcome Back</h2>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<h2 class="auth-title">Welcome Back</h2>', unsafe_allow_html=True)
         
-        # Move form outside the container to avoid nesting issues
         with st.form("signin_form", clear_on_submit=False):
             username = st.text_input(
                 "Username", 
@@ -584,13 +556,8 @@ def show_login_page():
                     st.warning("⚠️ Please fill in all fields")
     
     with tab2:
-        st.markdown("""
-        <div class="auth-form-container">
-            <h2 class="auth-title">Create Your Account</h2>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<h2 class="auth-title">Create Your Account</h2>', unsafe_allow_html=True)
         
-        # Move form outside the container to avoid nesting issues
         with st.form("signup_form", clear_on_submit=False):
             new_username = st.text_input(
                 "Username", 
@@ -692,6 +659,9 @@ def show_dashboard():
     """, unsafe_allow_html=True)
     
     # Quick actions section
+    st.markdown('<h2 class="section-header">🚀 Quick Actions</h2>', unsafe_allow_html=True)
+    
+    st.markdown('<div class="quick-actions">', unsafe_allow_html=True)
     col1, col2, col3, col4 = st.columns([1, 1, 1, 1], gap="medium")
     
     with col1:
@@ -712,6 +682,54 @@ def show_dashboard():
                 del st.session_state[key]
             st.rerun()
     
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Recent activity section
+    st.markdown('<h2 class="section-header">📚 Recent Activity</h2>', unsafe_allow_html=True)
+    
+    st.markdown('<div class="interview-container">', unsafe_allow_html=True)
+    
+    # Get user's interviews from database
+    try:
+        from utils.database import get_user_interviews
+        interviews = get_user_interviews(st.session_state.user_id)
+        
+        if interviews:
+            for interview in interviews:
+                st.markdown(f"""
+                <div class="interview-card">
+                    <h3 style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #2c3e50; margin-bottom: 0.6rem; font-size: 1.1rem;">
+                        🎯 {interview.get('job_role', 'Unknown Role')} - {interview.get('experience_level', 'Unknown Level')}
+                    </h3>
+                    <p style="margin: 0.2rem 0; color: #34495e; font-size: 0.9rem;"><strong>Type:</strong> {interview.get('interview_type', 'N/A')}</p>
+                    <p style="margin: 0.2rem 0; color: #34495e; font-size: 0.9rem;"><strong>Skills:</strong> {interview.get('skills', 'N/A')}</p>
+                    <p style="margin: 0.6rem 0; color: {'#6D94C5' if interview.get('completed', False) else '#E8DFCA'}; font-size: 0.9rem; font-weight: 500;">
+                        {'✅ Completed' if interview.get('completed', False) else '⏳ In Progress'}
+                    </p>
+                    <p style="margin: 0; color: #7f8c8d; font-size: 0.8rem;"><strong>Created:</strong> {interview.get('created_at', 'Unknown')}</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                col1, col2, col3 = st.columns([2, 1, 1])
+                
+                with col2:
+                    if not interview.get('completed', False):
+                        if st.button("▶️ Start", key=f"start_{interview.get('id', '')}", use_container_width=True):
+                            st.session_state.current_interview_id = interview.get('id')
+                            st.switch_page("pages/interview.py")
+                
+                with col3:
+                    if interview.get('completed', False):
+                        if st.button("📊 Report", key=f"report_{interview.get('id', '')}", use_container_width=True):
+                            st.session_state.current_interview_id = interview.get('id')
+                            st.switch_page("pages/report.py")
+        else:
+            st.info("🎯 No interviews yet. Create your first mock interview to get started!")
+            
+    except Exception as e:
+        st.error(f"Error loading interviews: {e}")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
