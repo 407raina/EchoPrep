@@ -1,259 +1,153 @@
 import sqlite3
 import hashlib
-import uuid
-from datetime import datetime
 import os
+from datetime import datetime
 
-DATABASE_PATH = os.getenv("DATABASE_PATH", "./data/interviews.db")
-
-def get_db_connection():
-    """Create and return database connection"""
-    conn = sqlite3.connect(DATABASE_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+def get_db_path():
+    """Get the database file path"""
+    return os.path.join(os.path.dirname(os.path.dirname(__file__)), 'echoprep.db')
 
 def init_database():
-    """Initialize the database with required tables"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    """Initialize the EchoPrep database with required tables"""
+    db_path = get_db_path()
     
-    # Users table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY,
-        username TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    ''')
-    
-    # Interview mocks table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS interview_mocks (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        job_role TEXT NOT NULL,
-        experience_level TEXT NOT NULL,
-        interview_type TEXT NOT NULL,
-        skills TEXT NOT NULL,
-        questions TEXT,
-        completed BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    )
-    ''')
-    
-    # Interview sessions table (for storing conversation transcripts)
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS interview_sessions (
-        id TEXT PRIMARY KEY,
-        interview_mock_id TEXT NOT NULL,
-        transcript TEXT,
-        feedback TEXT,
-        score INTEGER,
-        completed_at TIMESTAMP,
-        FOREIGN KEY (interview_mock_id) REFERENCES interview_mocks (id)
-    )
-    ''')
-    
-    conn.commit()
-    conn.close()
-
-def hash_password(password):
-    """Hash password using SHA-256"""
-    return hashlib.sha256(password.encode()).hexdigest()
-
-def create_user(username, password):
-    """Create a new user"""
     try:
-        conn = get_db_connection()
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
         
-        user_id = str(uuid.uuid4())
-        password_hash = hash_password(password)
+        # Create users table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
         
+        # Create interviews table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS interviews (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                job_role TEXT NOT NULL,
+                experience_level TEXT NOT NULL,
+                interview_type TEXT NOT NULL,
+                skills TEXT,
+                completed BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        ''')
+        
+        # Create responses table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS responses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                interview_id INTEGER NOT NULL,
+                question TEXT NOT NULL,
+                answer TEXT NOT NULL,
+                ai_feedback TEXT,
+                score INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (interview_id) REFERENCES interviews (id)
+            )
+        ''')
+        
+        conn.commit()
+        conn.close()
+        print("✅ Database initialized successfully")
+        
+    except Exception as e:
+        print(f"❌ Database initialization error: {e}")
+        raise
+
+def hash_password(password):
+    """Hash a password using SHA-256"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def verify_user(username, password):
+    """Verify user credentials"""
+    db_path = get_db_path()
+    
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        password_hash = hash_password(password)
         cursor.execute(
-            "INSERT INTO users (id, username, password_hash) VALUES (?, ?, ?)",
-            (user_id, username, password_hash)
+            "SELECT id, username FROM users WHERE username = ? AND password_hash = ?",
+            (username, password_hash)
+        )
+        
+        user = cursor.fetchone()
+        conn.close()
+        
+        if user:
+            return {'id': user[0], 'username': user[1]}
+        return None
+        
+    except Exception as e:
+        print(f"❌ User verification error: {e}")
+        return None
+
+def create_user(username, email, password):
+    """Create a new user account"""
+    db_path = get_db_path()
+    
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        password_hash = hash_password(password)
+        cursor.execute(
+            "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+            (username, email, password_hash)
         )
         
         conn.commit()
         conn.close()
-        return True
+        return True, "Account created successfully"
+        
     except sqlite3.IntegrityError:
-        conn.close()
-        return False
-
-def verify_user(username, password):
-    """Verify user credentials and return user_id if valid"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    password_hash = hash_password(password)
-    
-    cursor.execute(
-        "SELECT id FROM users WHERE username = ? AND password_hash = ?",
-        (username, password_hash)
-    )
-    
-    result = cursor.fetchone()
-    conn.close()
-    
-    return result['id'] if result else None
-
-def create_interview_mock(user_id, job_role, experience_level, interview_type, skills):
-    """Create a new interview mock"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    mock_id = str(uuid.uuid4())
-    
-    cursor.execute('''
-    INSERT INTO interview_mocks (id, user_id, job_role, experience_level, interview_type, skills)
-    VALUES (?, ?, ?, ?, ?, ?)
-    ''', (mock_id, user_id, job_role, experience_level, interview_type, skills))
-    
-    conn.commit()
-    conn.close()
-    
-    return mock_id
+        return False, "Username or email already exists"
+    except Exception as e:
+        print(f"❌ User creation error: {e}")
+        return False, f"Error creating account: {e}"
 
 def get_user_interviews(user_id):
-    """Get all interview mocks for a user"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    """Get all interviews for a specific user"""
+    db_path = get_db_path()
     
-    cursor.execute('''
-    SELECT id, job_role, experience_level, interview_type, skills, completed, 
-           datetime(created_at, 'localtime') as created_at
-    FROM interview_mocks 
-    WHERE user_id = ? 
-    ORDER BY created_at DESC
-    ''', (user_id,))
-    
-    interviews = [dict(row) for row in cursor.fetchall()]
-    conn.close()
-    
-    return interviews
-
-def get_interview_mock(mock_id):
-    """Get specific interview mock details"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-    SELECT * FROM interview_mocks WHERE id = ?
-    ''', (mock_id,))
-    
-    result = cursor.fetchone()
-    conn.close()
-    
-    return dict(result) if result else None
-
-def update_interview_questions(mock_id, questions):
-    """Update interview questions for a mock"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-    UPDATE interview_mocks SET questions = ? WHERE id = ?
-    ''', (questions, mock_id))
-    
-    conn.commit()
-    conn.close()
-
-def create_interview_session(mock_id, transcript, feedback, score):
-    """Create interview session record"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    session_id = str(uuid.uuid4())
-    
-    cursor.execute('''
-    INSERT INTO interview_sessions (id, interview_mock_id, transcript, feedback, score, completed_at)
-    VALUES (?, ?, ?, ?, ?, ?)
-    ''', (session_id, mock_id, transcript, feedback, score, datetime.now()))
-    
-    # Mark interview mock as completed
-    cursor.execute('''
-    UPDATE interview_mocks SET completed = TRUE WHERE id = ?
-    ''', (mock_id,))
-    
-    conn.commit()
-    conn.close()
-    
-    return session_id
-
-def get_interview_session(mock_id):
-    """Get interview session for a mock"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-    SELECT * FROM interview_sessions WHERE interview_mock_id = ?
-    ''', (mock_id,))
-    
-    result = cursor.fetchone()
-    conn.close()
-    
-    return dict(result) if result else None
-
-def get_user_stats(user_id):
-    """Get user statistics"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-    SELECT 
-        COUNT(*) as total,
-        SUM(CASE WHEN completed = 1 THEN 1 ELSE 0 END) as completed
-    FROM interview_mocks 
-    WHERE user_id = ?
-    ''', (user_id,))
-    
-    result = cursor.fetchone()
-    
-    total = result['total'] if result else 0
-    completed = result['completed'] if result else 0
-    success_rate = (completed / total * 100) if total > 0 else 0
-    
-    conn.close()
-    
-    return {
-        'total': total,
-        'completed': completed,
-        'success_rate': success_rate
-    }
-
-def complete_interview_with_responses(interview_id, responses):
-    """Complete interview with responses"""
     try:
-        conn = get_db_connection()
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
         
-        # Create transcript from responses
-        transcript_lines = []
-        for i, resp in enumerate(responses, 1):
-            transcript_lines.append(f"Q{i}: {resp['question']}")
-            transcript_lines.append(f"A{i}: {resp['response']}")
+        cursor.execute(
+            "SELECT * FROM interviews WHERE user_id = ? ORDER BY created_at DESC",
+            (user_id,)
+        )
         
-        transcript = "\n\n".join(transcript_lines)
-        
-        # Create session record
-        session_id = str(uuid.uuid4())
-        cursor.execute('''
-        INSERT INTO interview_sessions (id, interview_mock_id, transcript, completed_at)
-        VALUES (?, ?, ?, ?)
-        ''', (session_id, interview_id, transcript, datetime.now()))
-        
-        # Mark interview as completed
-        cursor.execute('''
-        UPDATE interview_mocks SET completed = TRUE WHERE id = ?
-        ''', (interview_id,))
-        
-        conn.commit()
+        interviews = cursor.fetchall()
         conn.close()
-        return session_id
+        
+        # Convert to list of dictionaries
+        interview_list = []
+        for interview in interviews:
+            interview_list.append({
+                'id': interview[0],
+                'user_id': interview[1],
+                'job_role': interview[2],
+                'experience_level': interview[3],
+                'interview_type': interview[4],
+                'skills': interview[5],
+                'completed': interview[6],
+                'created_at': interview[7]
+            })
+        
+        return interview_list
+        
     except Exception as e:
-        print(f"Error completing interview: {e}")
-        return None
+        print(f"❌ Error fetching interviews: {e}")
+        return []
