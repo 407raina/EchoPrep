@@ -224,3 +224,36 @@ def get_user_stats(user_id):
         'completed': completed,
         'success_rate': success_rate
     }
+
+def complete_interview_with_responses(interview_id, responses):
+    """Complete interview with responses"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Create transcript from responses
+        transcript_lines = []
+        for i, resp in enumerate(responses, 1):
+            transcript_lines.append(f"Q{i}: {resp['question']}")
+            transcript_lines.append(f"A{i}: {resp['response']}")
+        
+        transcript = "\n\n".join(transcript_lines)
+        
+        # Create session record
+        session_id = str(uuid.uuid4())
+        cursor.execute('''
+        INSERT INTO interview_sessions (id, interview_mock_id, transcript, completed_at)
+        VALUES (?, ?, ?, ?)
+        ''', (session_id, interview_id, transcript, datetime.now()))
+        
+        # Mark interview as completed
+        cursor.execute('''
+        UPDATE interview_mocks SET completed = TRUE WHERE id = ?
+        ''', (interview_id,))
+        
+        conn.commit()
+        conn.close()
+        return session_id
+    except Exception as e:
+        print(f"Error completing interview: {e}")
+        return None

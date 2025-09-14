@@ -76,8 +76,8 @@ echoprep/
    cp .env.example .env
    
    # Edit .env and add your API keys
-   GOOGLE_API_KEY=your_google_gemini_api_key_here
-   HUGGINGFACE_API_TOKEN=your_huggingface_api_token_here
+   AIZASYALDA8KYG3YJE-16JBBEI0S2NGK3ZTOT9W=your_google_gemini_api_key_here
+   HF_PEZITYHDXLDXRBETBGGJTOKZQTZAEFXLTN=your_huggingface_api_token_here
    ```
 
 4. **Run the application**
@@ -96,13 +96,13 @@ echoprep/
 
 1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
 2. Create a new API key
-3. Add to your `.env` file as `GOOGLE_API_KEY`
+3. Add to your `.env` file as `AIZASYALDA8KYG3YJE-16JBBEI0S2NGK3ZTOT9W`
 
 ### Hugging Face API (Optional)
 
 1. Visit [Hugging Face](https://huggingface.co/settings/tokens)
 2. Create a new token
-3. Add to your `.env` file as `HUGGINGFACE_API_TOKEN`
+3. Add to your `.env` file as `HF_PEZITYHDXLDXRBETBGGJTOKZQTZAEFXLTN`
 
 **Note**: The app will work without Hugging Face API but with limited speech-to-text functionality.
 
@@ -140,10 +140,10 @@ echoprep/
 
 ```bash
 # Required
-GOOGLE_API_KEY=your_api_key                    # Google Gemini API key
+AIZASYALDA8KYG3YJE-16JBBEI0S2NGK3ZTOT9W=your_api_key                    # Google Gemini API key
 
 # Optional
-HUGGINGFACE_API_TOKEN=your_token               # Hugging Face API token
+HF_PEZITYHDXLDXRBETBGGJTOKZQTZAEFXLTN=your_token               # Hugging Face API token
 DATABASE_PATH=./data/interviews.db             # SQLite database path
 APP_TITLE=EchoPrep AI                          # Application title
 ```

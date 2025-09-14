@@ -5,9 +5,9 @@ import requests
 from typing import List, Dict
 
 # Configure Gemini API
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-if GOOGLE_API_KEY:
-    genai.configure(api_key=GOOGLE_API_KEY)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 # Hugging Face API configuration
 HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
@@ -16,7 +16,7 @@ HF_API_URL = "https://api-inference.huggingface.co/models/"
 def generate_interview_questions(job_role: str, experience_level: str, interview_type: str, skills: str) -> List[str]:
     """Generate interview questions using Gemini AI"""
     
-    if not GOOGLE_API_KEY:
+    if not GEMINI_API_KEY:
         # Return sample questions if API key not configured
         return [
             f"Tell me about yourself and your experience in {job_role}.",
@@ -67,7 +67,7 @@ def generate_interview_questions(job_role: str, experience_level: str, interview
 def analyze_interview_performance(transcript: str, job_role: str, experience_level: str, skills: str) -> Dict:
     """Analyze interview performance using Gemini AI"""
     
-    if not GOOGLE_API_KEY:
+    if not GEMINI_API_KEY:
         # Return sample feedback if API key not configured
         return {
             "overall_score": 75,
@@ -166,7 +166,7 @@ def analyze_interview_performance(transcript: str, job_role: str, experience_lev
 def conversational_setup_assistant(user_input: str, conversation_history: List[str]) -> Dict:
     """AI assistant for conversational interview setup"""
     
-    if not GOOGLE_API_KEY:
+    if not GEMINI_API_KEY:
         # Simple rule-based responses if API key not configured
         if "job" in user_input.lower() or "role" in user_input.lower():
             return {

@@ -196,29 +196,18 @@ div[data-testid="stButton"] > button:hover {
 div[data-testid="stTextInput"] > div > div > input,
 div[data-testid="stTextArea"] > div > div > textarea,
 div[data-testid="stSelectbox"] > div > div > select {
-    border-radius: 12px;
-    border: 2px solid #e5e7eb;
-    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    padding: 0.75rem;
     font-size: 0.875rem;
-    transition: all 0.3s ease;
-    background: #ffffff;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    outline: none;
-}
-
-div[data-testid="stTextInput"] > div > div > input:hover,
-div[data-testid="stTextArea"] > div > div > textarea:hover,
-div[data-testid="stSelectbox"] > div > div > select:hover {
-    border-color: #cbd5e1;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
 }
 
 div[data-testid="stTextInput"] > div > div > input:focus,
 div[data-testid="stTextArea"] > div > div > textarea:focus,
 div[data-testid="stSelectbox"] > div > div > select:focus {
     border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    transform: translateY(-1px);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* Hide Streamlit branding */

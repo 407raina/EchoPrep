@@ -6,11 +6,12 @@ from gtts import gTTS
 import streamlit as st
 import base64
 import json
+import speech_recognition as sr
+from audiorecorder import audiorecorder
 
 # Hugging Face API configuration
 HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
 HF_STT_MODEL = "openai/whisper-base"
-HF_TTS_MODEL = "microsoft/speecht5_tts"
 
 def text_to_speech(text: str) -> bytes:
     """Convert text to speech using gTTS (Google Text-to-Speech)"""
@@ -32,35 +33,75 @@ def text_to_speech(text: str) -> bytes:
             return audio_data
             
     except Exception as e:
-        print(f"Error in text-to-speech: {e}")
+        st.error(f"Error in text-to-speech: {e}")
         return None
 
-def text_to_speech_huggingface(text: str) -> bytes:
-    """Convert text to speech using Hugging Face API (fallback option)"""
-    if not HUGGINGFACE_API_TOKEN:
-        return text_to_speech(text)  # Fallback to gTTS
+def create_audio_player(audio_data: bytes, autoplay: bool = False) -> str:
+    """Create HTML audio player for Streamlit"""
+    if not audio_data:
+        return ""
     
+    # Encode audio data to base64
+    audio_base64 = base64.b64encode(audio_data).decode()
+    
+    # Create HTML audio element
+    autoplay_attr = "autoplay" if autoplay else ""
+    
+    audio_html = f"""
+    <div class="audio-player">
+        <audio controls {autoplay_attr} style="width: 100%;">
+            <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+    """
+    
+    return audio_html
+
+def get_audio_recorder():
+    """Get audio recorder widget with better UI"""
+    from streamlit_audiorecorder import audiorecorder
+    
+    st.markdown("### 🎤 Voice Response")
+    st.markdown("Click the record button below to record your answer:")
+    
+    # Use the audiorecorder component
+    audio = audiorecorder("🎤 Start Recording", "⏹️ Stop Recording")
+    
+    return audio
+
+def speech_to_text_local(audio_data) -> str:
+    """Convert speech to text using local speech recognition"""
     try:
-        headers = {"Authorization": f"Bearer {HUGGINGFACE_API_TOKEN}"}
+        # Initialize recognizer
+        r = sr.Recognizer()
         
-        # Use a simpler TTS model
-        api_url = f"https://api-inference.huggingface.co/models/espnet/kan-bayashi_ljspeech_vits"
-        
-        response = requests.post(
-            api_url,
-            headers=headers,
-            json={"inputs": text}
-        )
-        
-        if response.status_code == 200:
-            return response.content
-        else:
-            print(f"Hugging Face TTS API error: {response.status_code}")
-            return text_to_speech(text)  # Fallback to gTTS
+        # If audio_data is from audiorecorder, save it to a temporary file
+        if hasattr(audio_data, 'export'):
+            # Export audio to wav format
+            audio_data.export("temp_audio.wav", format="wav")
             
+            # Use speech recognition on the file
+            with sr.AudioFile("temp_audio.wav") as source:
+                audio = r.record(source)
+                
+            # Clean up temporary file
+            os.remove("temp_audio.wav")
+            
+            # Recognize speech using Google Speech Recognition
+            text = r.recognize_google(audio)
+            return text
+            
+        else:
+            return "Could not process audio. Please try again or type your response."
+            
+    except sr.UnknownValueError:
+        return "Could not understand audio. Please try again or type your response."
+    except sr.RequestError as e:
+        return f"Could not request results; {e}. Please type your response."
     except Exception as e:
-        print(f"Error in Hugging Face TTS: {e}")
-        return text_to_speech(text)  # Fallback to gTTS
+        st.error(f"Error in speech recognition: {e}")
+        return "Error processing audio. Please type your response."
 
 def speech_to_text_huggingface(audio_data: bytes) -> str:
     """Convert speech to text using Hugging Face Whisper API"""
@@ -82,30 +123,12 @@ def speech_to_text_huggingface(audio_data: bytes) -> str:
             result = response.json()
             return result.get('text', 'Could not transcribe audio')
         else:
-            print(f"Hugging Face STT API error: {response.status_code}")
+            st.error(f"Hugging Face STT API error: {response.status_code}")
             return "Could not transcribe audio. Please type your response."
             
     except Exception as e:
-        print(f"Error in speech-to-text: {e}")
+        st.error(f"Error in speech-to-text: {e}")
         return "Error transcribing audio. Please type your response."
-
-def create_audio_player(audio_data: bytes, autoplay: bool = False) -> str:
-    """Create HTML audio player for Streamlit"""
-    if not audio_data:
-        return ""
-    
-    # Encode audio data to base64
-    audio_base64 = base64.b64encode(audio_data).decode()
-    
-    # Create HTML audio element
-    audio_html = f"""
-    <audio {"autoplay" if autoplay else ""} controls style="width: 100%;">
-        <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
-        Your browser does not support the audio element.
-    </audio>
-    """
-    
-    return audio_html
 
 def play_audio_streamlit(audio_data: bytes, autoplay: bool = True):
     """Play audio in Streamlit using st.audio"""
