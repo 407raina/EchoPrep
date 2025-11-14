@@ -546,6 +546,7 @@ def show_login_page():
                     user_data = verify_user(username, password)
                     if user_data:
                         st.session_state.logged_in = True
+                        st.session_state.authenticated = True
                         st.session_state.user_id = user_data['id']
                         st.session_state.username = user_data['username']
                         st.success("✅ Login successful!")
@@ -670,7 +671,7 @@ def show_dashboard():
     
     with col2:
         if st.button("📊 View Reports", use_container_width=True):
-            st.switch_page("pages/reports.py")
+            st.switch_page("pages/report.py")
     
     with col3:
         if st.button("🔄 Refresh", use_container_width=True):

@@ -7,7 +7,6 @@ import streamlit as st
 import base64
 import json
 import speech_recognition as sr
-from audiorecorder import audiorecorder
 
 # Hugging Face API configuration
 HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
@@ -60,6 +59,7 @@ def create_audio_player(audio_data: bytes, autoplay: bool = False) -> str:
 
 def get_audio_recorder():
     """Get audio recorder widget with better UI"""
+    # Import inside function to avoid hard dependency at import time
     from streamlit_audiorecorder import audiorecorder
     
     st.markdown("### 🎤 Voice Response")
